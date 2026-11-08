@@ -425,10 +425,8 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
   var DATA_KEY = "camera-consult-offline-products-v6";
   var MODE_KEY = "camera-consult-offline-mode";
   var ACCESS_KEY = "camera-consult-offline-access";
-  var ADMIN_ACCESS_KEY = "camera-consult-offline-admin-access";
   var VIEW_CODE_KEY = "camera-consult-offline-view-code";
   var DEFAULT_VIEW_CODE = "NJCAMERA";
-  var DEFAULT_ADMIN_CODE = "0000";
   var SUBJECTS = [
     { id: "family", label: "家族・子ども", note: "日常、行事、運動会まで" },
     { id: "travel", label: "旅行・日常", note: "持ち歩いて気軽に撮る" },
@@ -488,9 +486,7 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
     search: "",
     editorId: null,
     accessUnlocked: safeGet(ACCESS_KEY) === "1",
-    adminUnlocked: safeGet(ADMIN_ACCESS_KEY) === "1",
     accessError: "",
-    adminError: "",
     viewKeyMessage: ""
   };
 
@@ -694,18 +690,7 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       '<section class="recommendation-card"><div class="recommendation-main"><p class="best-label"><span>BEST MATCH</span> 一番のおすすめ</p><p class="product-brand">' + esc(p.brand) + '</p><h2>' + esc(p.model) + '</h2><p class="product-tagline">' + esc(p.tagline) + '</p><div class="spec-chips"><span>' + esc(p.sensor) + '</span><span>' + styleLabel(p.style) + '</span><span>' + esc(p.priceLabel || BUDGET_LABELS[p.budget]) + '</span></div><div class="reason-list"><h3>この機種をおすすめする理由</h3>' + reasons + '</div>' + productLink(p) + '</div><aside class="talk-panel"><p class="talk-label">そのまま使えるご案内</p><blockquote>「' + esc(buildTalk(p, state.answers)) + '」</blockquote><button class="copy-button" data-action="copy-talk">案内文をコピー</button><div class="caution-box"><strong>一緒に確認したい点</strong><p>' + esc((p.cautions && p.cautions[0]) || '実機で操作感をご確認ください。') + '</p></div></aside></section>' +
       costHtml + '<section class="alternatives-section"><div class="section-title-row"><div><p>COMPARE</p><h2>比較しておきたい候補</h2></div><span>タップすると本命を切り替えられます</span></div><div class="alternative-grid">' + alternatives + '</div></section><div class="restart-panel"><div><strong>別のお客様をご案内しますか？</strong><span>回答をリセットして、最初の質問へ戻ります。</span></div><button class="primary-button" data-action="start">新しくご案内する <span>→</span></button></div></div>';
   }
-  function renderAdminGate() {
-    return '<div class="manager-page page-wrap admin-gate-wrap"><section class="admin-gate">' +
-      '<span class="admin-lock" aria-hidden="true">●</span>' +
-      '<p class="kicker"><span></span> SHARED PRODUCT MANAGER</p>' +
-      '<h1>商品編集を開く</h1>' +
-      '<p>商品データを編集できる人を限定するため、管理コードを入力してください。</p>' +
-      '<form id="admin-form"><label for="admin-code">管理コード</label><div><input id="admin-code" name="adminCode" type="password" inputmode="numeric" autocomplete="current-password" placeholder="管理コードを入力"><button class="primary-button" type="submit">管理画面を開く</button></div>' +
-      (state.adminError ? '<p class="admin-error" role="alert">' + esc(state.adminError) + '</p>' : '') +
-      '</form></section></div>';
-  }
   function renderManager() {
-    if (!state.adminUnlocked) return renderAdminGate();
     var sony = state.mode === 'sony-canon';
     var list = visibleProducts();
     var query = state.search.trim().toLowerCase();
@@ -720,7 +705,7 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       '<section class="view-key-settings"><div><p class="kicker"><span></span> ACCESS SETTING</p><h2>閲覧用の合言葉を変更</h2><p>新しい合言葉は全メーカー版とSONY・Canon版に共通で適用されます。共有相手には閲覧用だけを伝えてください。</p></div><form id="view-key-form"><label for="new-view-key">新しい合言葉</label><div><input id="new-view-key" name="newViewKey" placeholder="6〜32文字の半角英数字" autocapitalize="characters"><button class="primary-button" type="submit">変更する</button></div>' +
       (state.viewKeyMessage ? '<p class="view-key-message" role="status">' + esc(state.viewKeyMessage) + '</p>' : '') +
       '</form></section>' +
-      '<div class="manager-bottom"><p>' + (sony ? '専用版：SONY・Canon ' + visibleProducts().length + '機種' : '初期データ：2026年8月の売れ筋・注目機を中心に主要7社・' + products.length + '機種') + '</p><div><button class="reset-button neutral" data-action="forget-admin">この端末の管理コードを消す</button><button class="reset-button" data-action="reset">初期データに戻す</button></div></div></div>';
+      '<div class="manager-bottom"><p>' + (sony ? '専用版：SONY・Canon ' + visibleProducts().length + '機種' : '初期データ：2026年8月の売れ筋・注目機を中心に主要7社・' + products.length + '機種') + '</p><div><button class="reset-button" data-action="reset">初期データに戻す</button></div></div></div>';
   }
   function checkboxGroup(name, items, selected) {
     return '<div class="tag-checks">' + items.map(function (item) { var checked = selected.indexOf(item.id) >= 0; return '<label class="' + (checked ? 'checked' : '') + '"><input type="checkbox" name="' + name + '" value="' + esc(item.id) + '" ' + (checked ? 'checked' : '') + '>' + esc(item.label) + '</label>'; }).join('') + '</div>';
@@ -793,7 +778,6 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       case 'home': state.view = 'welcome'; state.editorId = null; render(); goTop(); break;
       case 'manage': state.view = 'manage'; state.editorId = null; render(); goTop(); break;
       case 'toggle-edition': state.mode = state.mode === 'sony-canon' ? 'all' : 'sony-canon'; safeSet(MODE_KEY, state.mode); state.view = 'welcome'; state.featuredId = ''; render(); goTop(); break;
-      case 'lock': safeRemove(ACCESS_KEY); safeRemove(ADMIN_ACCESS_KEY); state.accessUnlocked = false; state.adminUnlocked = false; state.view = 'welcome'; state.editorId = null; state.accessError = ''; state.adminError = ''; render(); goTop(); break;
       case 'start': startConsult(); break;
       case 'back': if (state.step > 0) state.step -= 1; else state.view = 'welcome'; render(); goTop(); break;
       case 'next':
@@ -808,7 +792,6 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       case 'add-product': state.editorId = ''; render(); break;
       case 'close-editor': state.editorId = null; render(); break;
       case 'export': downloadJson(); break;
-      case 'forget-admin': safeRemove(ADMIN_ACCESS_KEY); state.adminUnlocked = false; state.adminError = ''; state.editorId = null; render(); goTop(); break;
       case 'reset': if (confirm('この端末の商品データを初期41機種へ戻しますか？')) { products = clone(DEFAULT_PRODUCTS); saveProducts('初期データへ戻しました'); render(); } break;
     }
   });
@@ -853,22 +836,6 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       }
       return;
     }
-    if (event.target.id === 'admin-form') {
-      event.preventDefault();
-      var adminData = new FormData(event.target);
-      var adminCode = String(adminData.get('adminCode') || '').trim();
-      if (adminCode === DEFAULT_ADMIN_CODE) {
-        safeSet(ADMIN_ACCESS_KEY, '1');
-        state.adminUnlocked = true;
-        state.adminError = '';
-        render();
-        goTop();
-      } else {
-        state.adminError = '管理コードを確認してください。';
-        render();
-      }
-      return;
-    }
     if (event.target.id === 'view-key-form') {
       event.preventDefault();
       var viewKeyData = new FormData(event.target);
@@ -899,7 +866,7 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
 
   window.CAMERA_CONSULT_OFFLINE = {
     version: 6,
-    defaults: { viewCode: DEFAULT_VIEW_CODE, adminCode: DEFAULT_ADMIN_CODE },
+    defaults: { viewCode: DEFAULT_VIEW_CODE },
     getProducts: function () { return clone(products); },
     score: function (answers, mode) { var list = mode === 'sony-canon' ? products.filter(function (p) { return p.brand === 'SONY' || p.brand === 'Canon'; }) : products; return scoreProducts(list, answers); }
   };
