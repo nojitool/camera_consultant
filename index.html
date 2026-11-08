@@ -617,7 +617,6 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
         '<div class="topbar-actions">' +
           (state.view === 'welcome' ? '<button class="text-button edition-link" data-action="toggle-edition">' + (sony ? '全メーカー版' : 'SONY・Canon版') + '</button><button class="text-button manage-link" data-action="manage">商品を管理</button>' : '') +
           (state.view === 'manage' ? '<button class="text-button" data-action="home">接客画面へ戻る</button>' : state.view !== 'welcome' ? '<button class="text-button" data-action="home">終了する</button>' : '') +
-          '<button class="text-button lock-link" data-action="lock">ロックする</button>' +
           '<span class="staff-badge">' + (state.view === 'manage' ? '管理モード' : '接客モード') + '</span>' +
         '</div>' +
       '</header>';
@@ -739,10 +738,6 @@ footer p { margin: 0; font-size: 9px; text-align: right; line-height: 1.6; }
       '<div class="form-section"><h3>ご案内に表示する内容</h3><label><span>おすすめ理由（1行につき1つ）</span><textarea rows="5" required name="strengths">' + esc((p.strengths || []).join('\n')) + '</textarea></label><label><span>一緒に確認したい点（1行につき1つ）</span><textarea rows="3" name="cautions">' + esc((p.cautions || []).join('\n')) + '</textarea></label><p class="required-note">保存後、この端末の診断へすぐ反映されます。</p></div><div class="editor-actions"><button type="button" class="outline-button" data-action="close-editor">キャンセル</button><button class="primary-button" type="submit">保存する <span>→</span></button></div></form></section></div>';
   }
   function render() {
-    if (!state.accessUnlocked) {
-      root.innerHTML = renderAccess() + '<div id="toast" class="toast" role="status"></div>';
-      return;
-    }
     var content = state.view === 'welcome' ? renderWelcome() : state.view === 'consult' ? renderConsult() : state.view === 'results' ? renderResults() : renderManager();
     root.innerHTML = '<main class="app-shell">' + headerHtml() + content + footerHtml() + renderEditor() + '</main><div id="toast" class="toast" role="status"></div>';
     var search = document.getElementById('manager-search');
